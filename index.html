@@ -3,72 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Omnium OS</title>
+    <title>Omnium OS 10.0</title>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#020617">
-    <link rel="icon" href="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Omnium">
-
     <style>
-        :root { --bg: #020617; --glass: rgba(15, 23, 42, 0.98); --accent: #2563eb; --glow: #00d2ff; }
+        :root { --bg: #020617; --sidebar: #0a0f1e; --accent: #2563eb; --glow: #00d2ff; --online: #10b981; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; height: 100vh; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; display: flex; }
         
-        /* Боковая панель (Sidebar) */
-        .sidebar { width: 80px; background: #0a0f1e; display: flex; flex-direction: column; align-items: center; padding: 15px 0; border-right: 1px solid #1e293b; }
-        .main { flex: 1; display: flex; flex-direction: column; background: var(--glass); position: relative; }
-        
-        .avatar { width: 50px; height: 50px; border-radius: 15px; border: 2px solid var(--glow); margin-bottom: 20px; cursor: pointer; object-fit: cover; }
-        .room-icon { width: 45px; height: 45px; border-radius: 50%; background: #1e293b; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid transparent; transition: 0.2s; overflow: hidden; }
-        .room-icon:hover { border-color: var(--glow); }
-        .room-icon img { width: 100%; height: 100%; object-fit: cover; }
+        /* Слайдбар с никами */
+        .sidebar { width: 260px; background: var(--sidebar); display: flex; flex-direction: column; border-right: 1px solid #1e293b; transition: 0.3s; }
+        .profile-section { padding: 20px; border-bottom: 1px solid #1e293b; text-align: center; }
+        .my-ava-wrapper { position: relative; display: inline-block; cursor: pointer; }
+        .avatar { width: 60px; height: 60px; border-radius: 20px; border: 2px solid var(--glow); object-fit: cover; }
+        .status-badge { width: 12px; height: 12px; background: var(--online); border-radius: 50%; position: absolute; bottom: 0; right: 0; border: 2px solid var(--sidebar); box-shadow: 0 0 10px var(--online); }
 
-        /* Окно сообщений */
-        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; scrollbar-width: none; }
-        .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 15px; line-height: 1.4; animation: fadeIn 0.3s ease; position: relative; }
+        .room-item { padding: 12px 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .room-item:hover { background: rgba(255,255,255,0.05); }
+        .room-item.active { background: rgba(37, 99, 235, 0.2); border-left: 4px solid var(--accent); }
+        .room-info { flex: 1; overflow: hidden; }
+        .room-name { font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .room-status { font-size: 11px; color: var(--online); opacity: 0.8; }
+
+        /* Чат */
+        .main { flex: 1; display: flex; flex-direction: column; background: rgba(15, 23, 42, 0.98); }
+        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: none; }
+        
+        .msg { max-width: 80%; padding: 10px 14px; border-radius: 15px; position: relative; animation: slideUp 0.2s ease; }
         .me { align-self: flex-end; background: var(--accent); border-bottom-right-radius: 2px; }
         .friend { align-self: flex-start; background: #1e293b; border-bottom-left-radius: 2px; }
         
-        .sender-name { font-size: 10px; font-weight: bold; margin-bottom: 4px; opacity: 0.7; color: var(--glow); }
-        .chat-img { max-width: 100%; border-radius: 10px; margin-top: 5px; display: block; }
+        .msg-meta { font-size: 10px; opacity: 0.6; display: flex; justify-content: space-between; gap: 10px; margin-bottom: 3px; }
+        .msg-time { font-size: 9px; margin-top: 4px; text-align: right; opacity: 0.5; }
+        .chat-img { max-width: 100%; border-radius: 10px; margin-top: 5px; }
 
-        /* Поле ввода */
-        .input-area { padding: 15px; background: #0a0f1e; display: flex; gap: 10px; align-items: center; }
-        input { flex: 1; background: #1e293b; border: 1px solid #334155; padding: 12px 15px; border-radius: 20px; color: white; outline: none; }
-        .btn-action { background: var(--accent); border: none; width: 45px; height: 45px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        
-        #preview-box { display: none; position: absolute; bottom: 80px; left: 20px; background: #1e293b; padding: 10px; border-radius: 15px; border: 1px solid var(--glow); }
-        #preview-img { max-height: 100px; border-radius: 8px; }
+        .input-area { padding: 15px; background: var(--sidebar); display: flex; gap: 10px; align-items: center; }
+        input { flex: 1; background: #1e293b; border: 1px solid #334155; padding: 12px 18px; border-radius: 25px; color: white; outline: none; }
+        .btn { background: var(--accent); border: none; padding: 10px 20px; border-radius: 20px; color: white; cursor: pointer; font-weight: bold; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+        @media (max-width: 600px) { .sidebar { width: 80px; } .room-info, .profile-section span { display: none; } }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <img id="myAva" class="avatar" src="" onclick="changeNick()" title="Сменить ник">
-    <div onclick="addChat()" class="room-icon" style="background: var(--accent);">➕</div>
-    <div id="rooms"></div>
+    <div class="profile-section">
+        <label class="my-ava-wrapper">
+            <img id="myAva" class="avatar" src="">
+            <div class="status-badge"></div>
+            <input type="file" id="avaPicker" style="display:none" accept="image/*">
+        </label>
+        <div id="myNickDisplay" style="margin-top:10px; font-weight:bold; font-size:14px; color:var(--glow)">...</div>
+    </div>
+    <div style="padding: 10px;"><button onclick="addChat()" style="width:100%;" class="btn">+ Чат</button></div>
+    <div id="rooms" style="overflow-y:auto; flex:1"></div>
 </div>
 
 <div class="main">
     <div id="messages"></div>
-    
-    <div id="preview-box">
-        <img id="preview-img" src="">
-        <div onclick="cancelImg()" style="color: red; cursor: pointer; text-align: center; font-size: 12px; margin-top: 5px;">Отмена</div>
-    </div>
-
+    <div id="pBox" style="display:none; padding:10px; background:#1e293b;"><img id="pImg" style="height:80px; border-radius:10px;"></div>
     <div class="input-area">
-        <label style="cursor: pointer; font-size: 20px;">🖼️<input type="file" id="fInp" style="display:none" accept="image/*"></label>
+        <label style="font-size:20px; cursor:pointer">🖼️<input type="file" id="fInp" style="display:none" accept="image/*"></label>
         <input type="text" id="mInp" placeholder="Сообщение...">
-        <button id="sBtn" class="btn-action">➤</button>
+        <button id="sBtn" class="btn">➤</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, set, onValue, off } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, set, onValue, off, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDP-21yabgFIBC6IwSYFeS-oTJcXG_6-BM",
@@ -82,86 +86,108 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const getAva = (n) => `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${n}`;
+    const getBotAva = (n) => `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${n}`;
 
-    let myNick = localStorage.getItem('chatNick') || prompt("Твой ник:") || 'user' + Math.floor(Math.random()*1000);
-    myNick = myNick.toLowerCase().trim().replace(/\s/g, '_');
+    let myNick = localStorage.getItem('chatNick') || prompt("Ник:") || 'user'+Math.floor(Math.random()*999);
+    myNick = myNick.toLowerCase().trim();
     localStorage.setItem('chatNick', myNick);
+    document.getElementById('myNickDisplay').innerText = "@" + myNick;
 
-    document.getElementById('myAva').src = getAva(myNick);
+    // Кастомная аватарка
+    let myCustomAva = localStorage.getItem('myCustomAva') || getBotAva(myNick);
+    document.getElementById('myAva').src = myCustomAva;
 
-    window.changeNick = () => {
-        const n = prompt("Новый ник:", myNick);
-        if(n && n !== myNick) { localStorage.setItem('chatNick', n.toLowerCase().trim()); location.reload(); }
-    };
-
-    let activeRoom = null;
-    let pendingImg = null;
-
-    // Работа с фото
-    document.getElementById('fInp').onchange = e => {
-        const file = e.target.files[0];
+    document.getElementById('avaPicker').onchange = e => {
         const reader = new FileReader();
         reader.onload = ev => {
-            pendingImg = ev.target.result;
-            document.getElementById('preview-img').src = pendingImg;
-            document.getElementById('preview-box').style.display = 'block';
+            myCustomAva = ev.target.result;
+            localStorage.setItem('myCustomAva', myCustomAva);
+            document.getElementById('myAva').src = myCustomAva;
+            set(ref(db, `users/${myNick}/ava`), myCustomAva);
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(e.target.files[0]);
     };
 
-    window.cancelImg = () => { pendingImg = null; document.getElementById('preview-box').style.display = 'none'; };
+    // Статус онлайн
+    const myStatusRef = ref(db, `status/${myNick}`);
+    set(myStatusRef, 'online');
+    onDisconnect(myStatusRef).set('offline');
 
-    // Создание чата
-    window.addChat = () => {
-        const friend = prompt("Ник друга:");
-        if(!friend) return;
-        const rid = ['chat', myNick, friend.toLowerCase().trim()].sort().join('_');
-        set(ref(db, `rooms/${rid}`), { members: {[myNick]:true, [friend.toLowerCase().trim()]:true}, name: friend });
-        openRoom(rid);
-    };
+    let activeRoom = null, pendingImg = null;
 
-    function openRoom(id) {
+    // Работа с сообщениями
+    function openRoom(id, name) {
         activeRoom = id;
         const mDiv = document.getElementById('messages');
         mDiv.innerHTML = '';
         off(ref(db, `messages/${id}`));
         onChildAdded(ref(db, `messages/${id}`), s => {
             const m = s.val();
+            const time = m.time ? new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
             const d = document.createElement('div');
             d.className = `msg ${m.from === myNick ? 'me' : 'friend'}`;
             d.innerHTML = `
-                <div class="sender-name">${m.from}</div>
+                <div class="msg-meta"><span>${m.from}</span></div>
                 ${m.img ? `<img src="${m.img}" class="chat-img">` : ''}
                 <div>${m.text || ''}</div>
+                <div class="msg-time">${time}</div>
             `;
             mDiv.appendChild(d);
             mDiv.scrollTop = mDiv.scrollHeight;
         });
     }
 
-    // Список чатов
+    // Список чатов с никами и статусом
     onValue(ref(db, 'rooms'), snap => {
         const rDiv = document.getElementById('rooms'); rDiv.innerHTML = '';
         snap.forEach(c => {
-            if(c.val().members && c.val().members[myNick]) {
-                const name = c.key.replace('chat_','').replace(myNick,'').replace('_','');
-                const icon = document.createElement('div');
-                icon.className = 'room-icon';
-                icon.innerHTML = `<img src="${getAva(name)}">`;
-                icon.onclick = () => openRoom(c.key);
-                rDiv.appendChild(icon);
+            if(c.val().members[myNick]) {
+                const friendNick = c.key.replace('chat_','').replace(myNick,'').replace('_','');
+                const item = document.createElement('div');
+                item.className = `room-item ${activeRoom === c.key ? 'active' : ''}`;
+                
+                // Слушаем аватарку и статус друга
+                onValue(ref(db, `users/${friendNick}/ava`), s => {
+                    const ava = s.val() || getBotAva(friendNick);
+                    onValue(ref(db, `status/${friendNick}`), st => {
+                        const isOnline = st.val() === 'online';
+                        item.innerHTML = `
+                            <div style="position:relative">
+                                <img src="${ava}" style="width:40px; height:40px; border-radius:12px; object-fit:cover;">
+                                ${isOnline ? '<div class="status-badge" style="width:8px; height:8px; border:1px solid #0a0f1e"></div>' : ''}
+                            </div>
+                            <div class="room-info">
+                                <div class="room-name">${friendNick}</div>
+                                <div class="room-status" style="color:${isOnline ? '#10b981' : '#64748b'}">${isOnline ? 'в сети' : 'был недавно'}</div>
+                            </div>
+                        `;
+                    });
+                });
+                item.onclick = () => openRoom(c.key, friendNick);
+                rDiv.appendChild(item);
             }
         });
     });
 
-    // Отправка
+    window.addChat = () => {
+        const f = prompt("Ник друга:"); if(!f) return;
+        const rid = ['chat', myNick, f.toLowerCase().trim()].sort().join('_');
+        set(ref(db, `rooms/${rid}`), { members: {[myNick]:true, [f.toLowerCase().trim()]:true} });
+        set(ref(db, `users/${myNick}/ava`), myCustomAva); // Чтобы друг видел твою аву
+        openRoom(rid, f);
+    };
+
+    document.getElementById('fInp').onchange = e => {
+        const reader = new FileReader();
+        reader.onload = ev => { pendingImg = ev.target.result; document.getElementById('pImg').src=pendingImg; document.getElementById('pBox').style.display='block'; };
+        reader.readAsDataURL(e.target.files[0]);
+    };
+
     document.getElementById('sBtn').onclick = () => {
         const inp = document.getElementById('mInp');
         if(activeRoom && (inp.value.trim() || pendingImg)) {
-            push(ref(db, `messages/${activeRoom}`), { from: myNick, text: inp.value.trim(), img: pendingImg });
-            inp.value = '';
-            cancelImg();
+            push(ref(db, `messages/${activeRoom}`), { from: myNick, text: inp.value.trim(), img: pendingImg, time: serverTimestamp() });
+            inp.value = ''; pendingImg = null; document.getElementById('pBox').style.display='none';
         }
     };
 </script>
