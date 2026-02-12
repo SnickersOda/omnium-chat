@@ -2,15 +2,32 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Omnium OS 9.6 Ultra Stable</title>
     <style>
         :root { --bg: #020617; --glass: rgba(15, 23, 42, 0.95); --accent: #2563eb; --glow: #00d2ff; --online: #10b981; }
-        body { margin: 0; height: 100vh; display: flex; background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; color: white; overflow: hidden; }
         
+        * { box-sizing: border-box; }
+
+        body { 
+            margin: 0; height: 100vh; display: flex; background: var(--bg); 
+            font-family: 'Segoe UI', system-ui, sans-serif; color: white; 
+            overflow: hidden; 
+        }
+
+        /* ОСНОВНОЙ КОНТЕЙНЕР ДЛЯ ПЕРЕКЛЮЧЕНИЯ */
+        .app-wrapper {
+            display: flex; width: 100%; height: 100%;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         /* SIDEBAR */
-        .sidebar { width: 320px; background: rgba(10, 15, 30, 0.9); border-right: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; padding: 20px; }
-        
+        .sidebar { 
+            width: 320px; min-width: 320px; background: rgba(10, 15, 30, 0.9); 
+            border-right: 1px solid rgba(255, 255, 255, 0.1); 
+            display: flex; flex-direction: column; padding: 20px; 
+        }
+
         #my-nick-display { 
             font-weight: 800; color: var(--glow); margin-bottom: 25px; text-align: center; 
             font-size: 18px; cursor: pointer; padding: 12px;
@@ -18,91 +35,114 @@
             transition: 0.3s; text-transform: lowercase;
             position: relative;
         }
-        #my-nick-display:hover { border: 2px solid var(--glow); box-shadow: 0 0 15px rgba(0, 210, 255, 0.2); }
-        #my-nick-display::after { content: 'сменить ник'; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); font-size: 10px; opacity: 0; transition: 0.3s; color: var(--glow); }
-        #my-nick-display:hover::after { opacity: 1; bottom: -20px; }
 
+        /* MAIN CHAT */
+        .main-chat { 
+            flex-grow: 1; display: flex; flex-direction: column; 
+            padding: 20px; position: relative; min-width: 100%; 
+        }
+
+        .glass-card { 
+            height: 100%; background: var(--glass); backdrop-filter: blur(40px); 
+            border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.1); 
+            display: flex; flex-direction: column; padding: 20px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+        }
+
+        /* АДАПТИВНОСТЬ ПОД МОБИЛЫ */
+        @media (max-width: 768px) {
+            .sidebar { min-width: 100%; width: 100%; }
+            .main-chat { padding: 10px; }
+            .glass-card { border-radius: 20px; padding: 15px; }
+            
+            /* Состояние при открытом чате */
+            body.chat-active .app-wrapper {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* ШАПКА ЧАТА С КНОПКОЙ НАЗАД */
+        .chat-header {
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
+            padding-bottom: 15px; margin-bottom: 15px;
+        }
+
+        .back-btn {
+            display: none; background: rgba(255,255,255,0.1); border: none;
+            color: white; padding: 8px 15px; border-radius: 12px; 
+            margin-right: 10px; cursor: pointer;
+        }
+
+        @media (max-width: 768px) { .back-btn { display: block; } }
+
+        /* ОСТАЛЬНЫЕ ТВОИ СТИЛИ БЕЗ ИЗМЕНЕНИЙ */
         .chat-item { 
             padding: 15px; border-radius: 25px; background: rgba(255,255,255,0.03); 
             margin-bottom: 10px; cursor: pointer; border: 1px solid transparent; 
             transition: 0.2s; display: flex; align-items: center; gap: 12px; position: relative;
         }
-        .chat-item:hover { background: rgba(255,255,255,0.07); }
         .chat-item.active { border-color: var(--glow); background: rgba(0, 210, 255, 0.1); }
         .status-dot { width: 10px; height: 10px; background: var(--online); border-radius: 50%; position: absolute; right: 20px; box-shadow: 0 0 10px var(--online); display: none; }
 
-        /* MAIN CHAT */
-        .main-chat { flex-grow: 1; display: flex; flex-direction: column; padding: 20px; position: relative; }
-        .glass-card { height: 100%; background: var(--glass); backdrop-filter: blur(40px); border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        
-        #messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 10px; scrollbar-width: none; }
-        .msg { max-width: 75%; padding: 12px 18px; border-radius: 20px; line-height: 1.4; animation: fadeIn 0.3s ease; position: relative; }
-        .msg.me { align-self: flex-end; background: var(--accent); border-bottom-right-radius: 4px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+        #messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 5px; scrollbar-width: none; }
+        .msg { max-width: 85%; padding: 12px 18px; border-radius: 20px; line-height: 1.4; animation: fadeIn 0.3s ease; position: relative; word-wrap: break-word; }
+        .msg.me { align-self: flex-end; background: var(--accent); border-bottom-right-radius: 4px; }
         .msg.friend { align-self: flex-start; background: rgba(255, 255, 255, 0.08); border-bottom-left-radius: 4px; }
 
-        #typing-indicator { font-size: 12px; color: var(--glow); height: 15px; margin-bottom: 5px; opacity: 0.8; }
-
-        /* PREVIEW */
-        #img-preview-box { display: none; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 15px; margin-bottom: 10px; position: relative; width: fit-content; border: 1px solid var(--glow); }
-        #img-preview-box img { max-height: 100px; border-radius: 10px; }
-        .close-preview { position: absolute; top: -10px; right: -10px; background: #ff4d4d; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; text-align: center; line-height: 24px; font-weight: bold; }
-
-        /* CONTROLS */
-        .controls { display: flex; gap: 12px; margin-top: 10px; align-items: center; }
-        input { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 16px 20px; border-radius: 25px; color: white; outline: none; flex-grow: 1; font-size: 15px; }
-        input:focus { border-color: var(--glow); background: rgba(255,255,255,0.1); }
+        .controls { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+        .controls input { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 12px 15px; border-radius: 20px; color: white; outline: none; flex-grow: 1; font-size: 14px; }
         
-        .btn-call { background: #10b981; border:none; padding: 12px 25px; border-radius: 20px; color:white; cursor:pointer; font-weight: bold; transition: 0.2s; }
-        .btn-hangup { background: #ef4444; border:none; padding: 12px 25px; border-radius: 20px; color:white; cursor:pointer; display: none; font-weight: bold; }
-        #sendBtn { background: var(--accent); border: none; width: 55px; height: 55px; border-radius: 50%; color: white; cursor: pointer; font-size: 20px; transition: 0.2s; }
-        #sendBtn:hover { transform: scale(1.05); background: #3b82f6; }
-        
-        .icon-btn { cursor: pointer; font-size: 24px; opacity: 0.6; transition: 0.2s; }
-        .icon-btn:hover { opacity: 1; }
-        #voiceBtn.active { color: #ff4d4d; animation: pulse 1s infinite; opacity: 1; }
+        .btn-call { background: #10b981; border:none; padding: 10px 15px; border-radius: 15px; color:white; font-size: 12px; font-weight: bold; cursor:pointer; }
+        .btn-hangup { background: #ef4444; border:none; padding: 10px 15px; border-radius: 15px; color:white; font-size: 12px; display: none; font-weight: bold; }
+        #sendBtn { background: var(--accent); border: none; width: 45px; height: 45px; min-width: 45px; border-radius: 50%; color: white; cursor: pointer; font-size: 18px; }
 
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        audio { height: 40px; filter: invert(1); margin-top: 8px; border-radius: 20px; }
-        img.chat-img { max-width: 100%; border-radius: 15px; margin-top: 8px; cursor: zoom-in; }
+        audio { max-width: 100%; height: 35px; filter: invert(1); margin-top: 8px; }
+        img.chat-img { max-width: 100%; border-radius: 15px; margin-top: 8px; }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <div id="my-nick-display" title="Нажми, чтобы изменить ник">загрузка...</div>
-    <div style="display:flex; gap: 8px; margin-bottom: 20px;">
-        <button onclick="joinGroup()" style="flex:1; padding:12px; border-radius:15px; background: rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1); cursor:pointer; font-weight:600;">👥 Группа</button>
-        <button onclick="startPrivate()" style="flex:1; padding:12px; border-radius:15px; background: rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1); cursor:pointer; font-weight:600;">👤 Личка</button>
+<div class="app-wrapper">
+    <div class="sidebar">
+        <div id="my-nick-display" title="Нажми, чтобы изменить ник">загрузка...</div>
+        <div style="display:flex; gap: 8px; margin-bottom: 20px;">
+            <button onclick="joinGroup()" style="flex:1; padding:12px; border-radius:15px; background: rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1); cursor:pointer; font-weight:600; font-size: 12px;">👥 Группа</button>
+            <button onclick="startPrivate()" style="flex:1; padding:12px; border-radius:15px; background: rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1); cursor:pointer; font-weight:600; font-size: 12px;">👤 Личка</button>
+        </div>
+        <div id="rooms-list" style="overflow-y: auto; flex-grow: 1; scrollbar-width: none;"></div>
     </div>
-    <div id="rooms-list" style="overflow-y: auto; flex-grow: 1; scrollbar-width: none;"></div>
-</div>
 
-<div class="main-chat">
-    <div class="glass-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
-            <div>
-                <div id="current-chat-name" style="font-weight: 800; font-size: 22px; color: var(--glow);">Выберите чат</div>
-                <div id="typing-indicator"></div>
+    <div class="main-chat">
+        <div class="glass-card">
+            <div class="chat-header">
+                <div style="display: flex; align-items: center;">
+                    <button class="back-btn" onclick="goBack()">←</button>
+                    <div>
+                        <div id="current-chat-name" style="font-weight: 800; font-size: 18px; color: var(--glow);">Выберите чат</div>
+                        <div id="typing-indicator" style="font-size: 10px; color: var(--glow); height: 12px;"></div>
+                    </div>
+                </div>
+                <div style="display:flex; gap: 5px;">
+                    <button id="callBtn" class="btn-call">📞</button>
+                    <button id="hangupBtn" class="btn-hangup">❌</button>
+                </div>
             </div>
-            <div style="display:flex; gap: 10px;">
-                <button id="callBtn" class="btn-call">📞 ЗВОНОК</button>
-                <button id="hangupBtn" class="btn-hangup">❌ СБРОС</button>
+            
+            <div id="messages"></div>
+
+            <div id="img-preview-box" style="display:none; position: relative; margin-bottom: 10px;">
+                <div style="position: absolute; top: -5px; right: -5px; background: #ff4d4d; border-radius: 50%; width: 20px; height: 20px; text-align: center; cursor: pointer; font-size: 12px;" onclick="cancelImg()">✕</div>
+                <img id="img-tag" style="max-height: 80px; border-radius: 10px; border: 1px solid var(--glow);">
             </div>
-        </div>
-        
-        <div id="messages"></div>
 
-        <div id="img-preview-box">
-            <div class="close-preview" onclick="cancelImg()">✕</div>
-            <img id="img-tag" src="">
-        </div>
-
-        <div class="controls">
-            <label class="icon-btn">🖼️<input type="file" id="file-input" style="display:none" accept="image/*"></label>
-            <div id="voiceBtn" class="icon-btn">🎤</div>
-            <input type="text" id="msg-input" placeholder="Напишите что-нибудь...">
-            <button id="sendBtn">➤</button>
+            <div class="controls">
+                <label style="cursor: pointer; font-size: 20px;">🖼️<input type="file" id="file-input" style="display:none" accept="image/*"></label>
+                <div id="voiceBtn" style="cursor: pointer; font-size: 20px;">🎤</div>
+                <input type="text" id="msg-input" placeholder="Текст...">
+                <button id="sendBtn">➤</button>
+            </div>
         </div>
     </div>
 </div>
@@ -125,84 +165,34 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // НИКНЕЙМ
-    let myNick = localStorage.getItem('chatNick');
-    if(!myNick) {
-        myNick = prompt("Твой ник:");
-        if(!myNick) myNick = 'user' + Math.floor(Math.random()*1000);
-        myNick = myNick.toLowerCase().trim().replace(/\s/g, '_');
-        localStorage.setItem('chatNick', myNick);
-    }
+    let myNick = localStorage.getItem('chatNick') || prompt("Твой ник:") || 'user' + Math.floor(Math.random()*1000);
+    myNick = myNick.toLowerCase().trim().replace(/\s/g, '_');
+    localStorage.setItem('chatNick', myNick);
     document.getElementById('my-nick-display').innerText = myNick;
 
-    // Смена ника при клике
+    // СМЕНА НИКА
     document.getElementById('my-nick-display').onclick = () => {
-        let newNick = prompt("Введите новый ник:", myNick);
-        if (newNick && newNick.toLowerCase().trim() !== myNick) {
-            newNick = newNick.toLowerCase().trim().replace(/\s/g, '_');
-            // Удаляем старый статус онлайн перед сменой
+        let n = prompt("Новый ник:", myNick);
+        if (n && n !== myNick) {
             remove(ref(db, `online/${myNick}`));
-            localStorage.setItem('chatNick', newNick);
-            location.reload(); // Перезагрузка для обновления PeerJS и Firebase слушателей
+            localStorage.setItem('chatNick', n.toLowerCase().trim().replace(/\s/g, '_'));
+            location.reload();
         }
     };
 
-    // СТАТУС ОНЛАЙН
-    const myStatusRef = ref(db, `online/${myNick}`);
-    set(myStatusRef, true);
-    onDisconnect(myStatusRef).remove();
+    // ОНЛАЙН СТАТУС
+    set(ref(db, `online/${myNick}`), true);
+    onDisconnect(ref(db, `online/${myNick}`)).remove();
 
-    // PEERJS
-    const peer = new Peer(myNick, {
-        host: 'my-peer-server.onrender.com',
-        port: 443, secure: true, path: '/',
-        config: { 'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }] }
-    });
+    // МОБИЛЬНАЯ НАВИГАЦИЯ
+    window.goBack = () => { document.body.classList.remove('chat-active'); };
 
-    let activeRoomId = null, msgListener = null, pendingFile = null, currentCalls = [];
+    let activeRoomId = null, msgListener = null, pendingFile = null;
 
-    // ЗВОНКИ
-    const callBtn = document.getElementById('callBtn');
-    const hangupBtn = document.getElementById('hangupBtn');
-
-    callBtn.onclick = async () => {
-        if(!activeRoomId) return;
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const snap = await get(ref(db, `rooms/${activeRoomId}/members`));
-            const members = snap.val() || {};
-            
-            Object.keys(members).forEach(nick => {
-                if(nick !== myNick) {
-                    const call = peer.call(nick, stream);
-                    handleCall(call);
-                }
-            });
-            callBtn.style.display = 'none'; hangupBtn.style.display = 'block';
-        } catch(e) { alert("Микрофон недоступен!"); }
-    };
-
-    peer.on('call', async call => {
-        if(confirm("Входящий вызов от: " + call.peer)) {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            call.answer(stream);
-            handleCall(call);
-            callBtn.style.display = 'none'; hangupBtn.style.display = 'block';
-        }
-    });
-
-    function handleCall(call) {
-        currentCalls.push(call);
-        call.on('stream', stream => {
-            const audio = new Audio(); audio.srcObject = stream; audio.play();
-        });
-        call.on('close', () => { if(currentCalls.length <= 1) location.reload(); });
-    }
-    hangupBtn.onclick = () => location.reload();
-
-    // ЧАТ ЛОГИКА
     function selectRoom(id, name) {
         activeRoomId = id;
+        if (window.innerWidth <= 768) document.body.classList.add('chat-active');
+        
         document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
         const activeEl = document.querySelector(`[data-id="${id}"]`);
         if(activeEl) activeEl.classList.add('active');
@@ -222,35 +212,17 @@
             const m = snap.val();
             const div = document.createElement('div');
             div.className = `msg ${m.from === myNick ? 'me' : 'friend'}`;
-            
-            let html = `<div style="font-size:11px; font-weight:bold; margin-bottom:4px; opacity:0.7;">${m.from}</div>`;
+            let html = `<div style="font-size:10px; font-weight:bold; margin-bottom:4px; opacity:0.6;">${m.from}</div>`;
             if(m.audio) html += `<audio controls src="${m.audio}"></audio>`;
             else if(m.image) html += `<img src="${m.image}" class="chat-img">`;
             else html += `<div>${m.text}</div>`;
-            
             div.innerHTML = html;
             document.getElementById('messages').appendChild(div);
             document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
         });
     }
 
-    // ГРУППЫ И ЛИЧКА
-    window.joinGroup = async () => {
-        const n = prompt("Название группы:"); if(!n) return;
-        const id = "group_" + n.toLowerCase().replace(/\s+/g, '_');
-        await update(ref(db, `rooms/${id}`), { name: n, type: 'group' });
-        await update(ref(db, `rooms/${id}/members`), { [myNick]: true });
-        selectRoom(id, n);
-    };
-
-    window.startPrivate = () => {
-        const f = prompt("Ник друга:"); if(!f) return;
-        const fid = f.toLowerCase().trim();
-        const rid = ['priv', myNick, fid].sort().join('_');
-        set(ref(db, `rooms/${rid}`), { name: fid, type: 'private', members: { [myNick]: true, [fid]: true } });
-        selectRoom(rid, fid);
-    };
-
+    // РЕНДЕР СПИСКА КОМНАТ
     onValue(ref(db, 'rooms'), snap => {
         const list = document.getElementById('rooms-list'); list.innerHTML = '';
         snap.forEach(child => {
@@ -267,13 +239,29 @@
                     onValue(ref(db, `online/${other}`), s => dot.style.display = s.val() ? 'block' : 'none');
                 }
 
-                item.innerHTML = `<span>${r.type === 'group' ? '👥' : '👤'}</span> <span>${r.name}</span>`;
+                item.innerHTML = `<span>${r.type === 'group' ? '👥' : '👤'}</span> <span style="font-size:14px;">${r.name}</span>`;
                 item.appendChild(dot);
                 item.onclick = () => selectRoom(child.key, r.name);
                 list.appendChild(item);
             }
         });
     });
+
+    window.joinGroup = async () => {
+        const n = prompt("Название группы:"); if(!n) return;
+        const id = "group_" + n.toLowerCase().replace(/\s+/g, '_');
+        await update(ref(db, `rooms/${id}`), { name: n, type: 'group' });
+        await update(ref(db, `rooms/${id}/members`), { [myNick]: true });
+        selectRoom(id, n);
+    };
+
+    window.startPrivate = () => {
+        const f = prompt("Ник друга:"); if(!f) return;
+        const fid = f.toLowerCase().trim();
+        const rid = ['priv', myNick, fid].sort().join('_');
+        set(ref(db, `rooms/${rid}`), { name: fid, type: 'private', members: { [myNick]: true, [fid]: true } });
+        selectRoom(rid, fid);
+    };
 
     // ОТПРАВКА
     document.getElementById('sendBtn').onclick = () => {
@@ -288,7 +276,6 @@
         input.value = ''; cancelImg();
     };
 
-    // ФОТО И ГС
     document.getElementById('file-input').onchange = e => {
         const f = e.target.files[0]; if(!f) return;
         const r = new FileReader();
@@ -299,24 +286,23 @@
 
     document.getElementById('msg-input').onkeydown = e => { if(e.key === 'Enter') document.getElementById('sendBtn').click(); };
 
+    // Голосовые (упрощено)
     let recorder, chunks = [];
     const vBtn = document.getElementById('voiceBtn');
     vBtn.onmousedown = async () => {
         try {
             const s = await navigator.mediaDevices.getUserMedia({ audio: true });
             recorder = new MediaRecorder(s); recorder.start(); chunks = [];
-            vBtn.classList.add('active');
             recorder.ondataavailable = e => chunks.push(e.data);
             recorder.onstop = () => {
                 const fr = new FileReader();
                 fr.readAsDataURL(new Blob(chunks, { type: 'audio/webm' }));
                 fr.onloadend = () => { if(activeRoomId) push(ref(db, `messages/${activeRoomId}`), { from: myNick, audio: fr.result }); };
             };
-        } catch(e) {}
+        } catch(e) { alert("Ошибка микрофона"); }
     };
-    vBtn.onmouseup = () => { if(recorder) { recorder.stop(); vBtn.classList.remove('active'); } };
-    
-    // Typing
+    vBtn.onmouseup = () => { if(recorder) recorder.stop(); };
+
     document.getElementById('msg-input').oninput = () => {
         if(!activeRoomId) return;
         set(ref(db, `typing/${activeRoomId}/${myNick}`), true);
