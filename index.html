@@ -11,29 +11,29 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; height: 100vh; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; display: flex; }
         
-        /* Старый широкий интерфейс */
-        .sidebar { width: 280px; background: var(--sidebar); display: flex; flex-direction: column; border-right: 1px solid #1e293b; }
-        .profile-section { padding: 20px; border-bottom: 1px solid #1e293b; text-align: center; }
-        .avatar-main { width: 65px; height: 65px; border-radius: 20px; border: 2px solid var(--glow); object-fit: cover; cursor: pointer; }
+        /* Широкий интерфейс из image_7af50e */
+        .sidebar { width: 300px; background: var(--sidebar); display: flex; flex-direction: column; border-right: 1px solid #1e293b; }
+        .profile-section { padding: 25px 20px; border-bottom: 1px solid #1e293b; text-align: center; }
+        .avatar-main { width: 70px; height: 70px; border-radius: 22px; border: 2px solid var(--glow); object-fit: cover; cursor: pointer; transition: 0.2s; }
         
-        .room-item { padding: 12px 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.03); }
-        .room-item.active { background: rgba(37, 99, 235, 0.2); border-left: 4px solid var(--accent); }
-        .status-dot { width: 10px; height: 10px; background: var(--online); border-radius: 50%; border: 2px solid var(--sidebar); position: absolute; bottom: 0; right: 0; }
+        .room-item { padding: 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.03); transition: 0.2s; }
+        .room-item.active { background: rgba(37, 99, 235, 0.15); border-left: 4px solid var(--accent); }
+        .status-dot { width: 12px; height: 12px; background: var(--online); border-radius: 50%; border: 2px solid var(--sidebar); position: absolute; bottom: 0; right: 0; }
 
         .main { flex: 1; display: flex; flex-direction: column; background: rgba(15, 23, 42, 0.98); }
-        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; scrollbar-width: none; }
+        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; scrollbar-width: none; }
         
-        .msg { max-width: 80%; padding: 10px 14px; border-radius: 15px; position: relative; animation: slideUp 0.2s ease; }
-        .me { align-self: flex-end; background: var(--accent); border-bottom-right-radius: 2px; }
-        .friend { align-self: flex-start; background: #1e293b; border-bottom-left-radius: 2px; }
+        .msg { max-width: 75%; padding: 10px 15px; border-radius: 18px; position: relative; animation: slideUp 0.2s ease; line-height: 1.4; }
+        .me { align-self: flex-end; background: var(--accent); border-bottom-right-radius: 4px; }
+        .friend { align-self: flex-start; background: #1e293b; border-bottom-left-radius: 4px; }
         
         /* Ник над сообщением */
-        .msg-author { font-size: 10px; font-weight: bold; margin-bottom: 4px; color: var(--glow); opacity: 0.8; }
-        .msg-time { font-size: 9px; margin-top: 4px; text-align: right; opacity: 0.5; }
+        .msg-author { font-size: 11px; font-weight: 800; margin-bottom: 4px; color: var(--glow); text-transform: lowercase; }
+        .msg-time { font-size: 9px; margin-top: 5px; text-align: right; opacity: 0.5; }
 
-        .input-area { padding: 15px; background: var(--sidebar); display: flex; gap: 10px; align-items: center; }
-        input { flex: 1; background: #1e293b; border: 1px solid #334155; padding: 12px 18px; border-radius: 25px; color: white; outline: none; }
-        .btn { background: var(--accent); border: none; padding: 10px 20px; border-radius: 20px; color: white; cursor: pointer; font-weight: bold; }
+        .input-area { padding: 20px; background: var(--sidebar); display: flex; gap: 12px; align-items: center; border-top: 1px solid #1e293b; }
+        input { flex: 1; background: #1e293b; border: 1px solid #334155; padding: 14px 20px; border-radius: 30px; color: white; outline: none; font-size: 15px; }
+        .btn { background: var(--accent); border: none; padding: 12px 25px; border-radius: 25px; color: white; cursor: pointer; font-weight: bold; }
         
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
     </style>
@@ -47,16 +47,16 @@
             <div class="status-dot"></div>
             <input type="file" id="avaPicker" style="display:none" accept="image/*">
         </label>
-        <div id="myNickDisplay" style="margin-top:10px; font-weight:bold; color:var(--glow); cursor:pointer;" onclick="changeNick()">@loading...</div>
-        <div style="font-size: 10px; opacity: 0.5;">Нажми на аву, чтобы сменить</div>
+        <div id="myNickDisplay" style="margin-top:12px; font-weight:bold; color:var(--glow); cursor:pointer; font-size: 16px;" onclick="changeNick()">@...</div>
     </div>
-    <div style="padding: 10px;"><button onclick="addChat()" class="btn" style="width:100%">+ Найти друга</button></div>
+    <div style="padding: 15px;"><button onclick="addChat()" class="btn" style="width:100%">+ Найти друга</button></div>
     <div id="rooms" style="overflow-y:auto; flex:1"></div>
 </div>
 
 <div class="main">
     <div id="messages"></div>
     <div class="input-area">
+        <label style="cursor:pointer; font-size: 20px;">🖼️<input type="file" id="fInp" style="display:none" accept="image/*"></label>
         <input type="text" id="mInp" placeholder="Напиши сообщение...">
         <button id="sBtn" class="btn">➤</button>
     </div>
@@ -80,23 +80,25 @@
     const db = getDatabase(app);
     const getBotAva = (n) => `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${n}`;
 
-    let myNick = localStorage.getItem('chatNick') || prompt("Ник:") || 'user'+Math.floor(Math.random()*999);
-    myNick = myNick.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+    let myNick = localStorage.getItem('chatNick') || prompt("Твой ник:") || 'user'+Math.floor(Math.random()*999);
+    myNick = myNick.toLowerCase().trim().replace(/[^a-zа-я0-9]/g, '');
     localStorage.setItem('chatNick', myNick);
-    
     document.getElementById('myNickDisplay').innerText = "@" + myNick;
 
-    // Смена аватарки (как просил)
     let myAva = localStorage.getItem('myCustomAva') || getBotAva(myNick);
     document.getElementById('myAva').src = myAva;
+
+    // Обновление авы в Firebase, чтобы другие видели
+    const updateAva = (base64) => {
+        set(ref(db, `users/${myNick}/ava`), base64);
+        localStorage.setItem('myCustomAva', base64);
+    };
 
     document.getElementById('avaPicker').onchange = e => {
         const reader = new FileReader();
         reader.onload = ev => {
-            myAva = ev.target.result;
-            localStorage.setItem('myCustomAva', myAva);
-            document.getElementById('myAva').src = myAva;
-            set(ref(db, `users/${myNick}/ava`), myAva);
+            document.getElementById('myAva').src = ev.target.result;
+            updateAva(ev.target.result);
         };
         reader.readAsDataURL(e.target.files[0]);
     };
@@ -104,36 +106,45 @@
     window.changeNick = () => {
         const n = prompt("Новый ник:", myNick);
         if(n && n.toLowerCase().trim() !== myNick) {
-            localStorage.setItem('chatNick', n.toLowerCase().trim().replace(/[^a-z0-9]/g, ''));
+            localStorage.setItem('chatNick', n.toLowerCase().trim().replace(/[^a-zа-я0-9]/g, ''));
             location.reload();
         }
     };
 
-    // Статус в сети
+    // Статус онлайн
     set(ref(db, `status/${myNick}`), 'online');
     onDisconnect(ref(db, `status/${myNick}`)).set('offline');
 
     let activeRoom = null;
 
-    // Отправка на Enter
-    const send = () => {
+    const send = (img = null) => {
         const inp = document.getElementById('mInp');
-        if(activeRoom && inp.value.trim()) {
-            push(ref(db, `messages/${activeRoom}`), { from: myNick, text: inp.value.trim(), time: serverTimestamp() });
+        if(activeRoom && (inp.value.trim() || img)) {
+            push(ref(db, `messages/${activeRoom}`), { 
+                from: myNick, 
+                text: inp.value.trim(), 
+                img: img,
+                time: serverTimestamp() 
+            });
             inp.value = '';
         }
     };
 
-    document.getElementById('sBtn').onclick = send;
+    document.getElementById('sBtn').onclick = () => send();
     document.getElementById('mInp').onkeydown = e => { if(e.key === 'Enter') send(); };
+    document.getElementById('fInp').onchange = e => {
+        const reader = new FileReader();
+        reader.onload = ev => send(ev.target.result);
+        reader.readAsDataURL(e.target.files[0]);
+    };
 
     window.addChat = () => {
         const f = prompt("Ник друга:"); if(!f) return;
-        const friend = f.toLowerCase().trim();
+        const friend = f.toLowerCase().trim().replace(/[^a-zа-я0-9]/g, '');
         const rid = ['chat', myNick, friend].sort().join('_');
         set(ref(db, `rooms/${rid}/members/${myNick}`), true);
         set(ref(db, `rooms/${rid}/members/${friend}`), true);
-        set(ref(db, `users/${myNick}/ava`), myAva); // Чтобы друг видел твою аву
+        set(ref(db, `users/${myNick}/ava`), myAva); 
         openRoom(rid);
     };
 
@@ -146,10 +157,10 @@
             const time = m.time ? new Date(m.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
             const d = document.createElement('div');
             d.className = `msg ${m.from === myNick ? 'me' : 'friend'}`;
-            // Добавляем ник собеседника над его сообщением
             d.innerHTML = `
                 ${m.from !== myNick ? `<div class="msg-author">${m.from}</div>` : ''}
-                <div>${m.text}</div>
+                ${m.img ? `<img src="${m.img}" style="max-width:100%; border-radius:10px; margin-bottom:5px;">` : ''}
+                <div>${m.text || ''}</div>
                 <div class="msg-time">${time}</div>
             `;
             document.getElementById('messages').appendChild(d);
@@ -161,7 +172,10 @@
         const rDiv = document.getElementById('rooms'); rDiv.innerHTML = '';
         snap.forEach(c => {
             if(c.val().members && c.val().members[myNick]) {
-                const friendNick = c.key.split('_').filter(n => n !== myNick && n !== 'chat')[0] || 'Чат';
+                // Прямая логика определения ника друга без "priv"
+                const keys = c.key.split('_');
+                const friendNick = keys.find(k => k !== myNick && k !== 'chat') || 'Чат';
+                
                 const item = document.createElement('div');
                 item.className = `room-item ${activeRoom === c.key ? 'active' : ''}`;
                 
@@ -170,10 +184,12 @@
                     onValue(ref(db, `status/${friendNick}`), st => {
                         const isOn = st.val() === 'online';
                         item.innerHTML = `
-                            <div style="position:relative"><img src="${ava}" style="width:40px;height:40px;border-radius:12px;object-fit:cover;">
+                            <div style="position:relative"><img src="${ava}" style="width:45px;height:45px;border-radius:15px;object-fit:cover;">
                             ${isOn ? '<div class="status-dot"></div>' : ''}</div>
-                            <div><div style="font-weight:bold;font-size:14px">${friendNick}</div>
-                            <div style="font-size:11px;color:${isOn?'#10b981':'#64748b'}">${isOn?'в сети':'был недавно'}</div></div>
+                            <div>
+                                <div class="room-name">${friendNick}</div>
+                                <div class="room-status" style="color:${isOn?'#10b981':'#64748b'}">${isOn?'в сети':'был недавно'}</div>
+                            </div>
                         `;
                     });
                 });
